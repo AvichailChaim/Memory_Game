@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="he">
 <head>
     <meta charset="UTF-8">
@@ -35,7 +35,7 @@
         }
         #game-board {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* הגדלתי את גודל המינימום של הקלפים */
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* גודל הקלפים ברירת מחדל */
             gap: 10px;
             width: 90%;
             padding: 10px;
@@ -46,12 +46,12 @@
         }
         .card {
             width: 100%;
-            padding-top: 100%; /* Aspect Ratio 1:1 */
+            padding-top: 100%; /* יחס גובה-רוחב של 1:1 */
             position: relative;
             background-image: url('2.jpg');
             background-size: cover;
             color: white;
-            font-size: 2em; /* גודל הגופן מותאם לגודל הקלפים */
+            font-size: 2em; /* גודל גופן ברירת מחדל */
             font-weight: bold;
             border-radius: 10px;
             display: flex;
@@ -75,7 +75,7 @@
             background-image: none;
             background-color: white;
             color: black;
-            font-size: 2em; /* גודל הגופן הותאם לגודל הקלף */
+            font-size: 2em; /* גודל גופן כשקלף פתוח */
             background-size: cover;
         }
         .matched .card-inner {
@@ -158,23 +158,18 @@
             margin: 0 5px;
         }
 
-        @media (min-width: 768px) {
-            #game-container {
-                flex-direction: row-reverse;
-                justify-content: space-between;
-                align-items: flex-start;
-                width: 90%;
-                height: 70vh;
-            }
-
+        @media only screen and (max-width: 600px) {
             #game-board {
-                margin-bottom: 0;
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); /* התאמה לגודל קלפים קטן יותר באנדרואיד */
+                gap: 5px;
             }
 
-            #scoreboard {
-                width: 20%;
-                margin-top: 0;
-                text-align: right;
+            .card {
+                font-size: 1.5em; /* הקטנת גודל האותיות */
+            }
+
+            .flipped .card-inner {
+                font-size: 1.5em; /* הקטנת גודל האותיות כשקלף פתוח */
             }
         }
     </style>
