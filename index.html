@@ -199,6 +199,11 @@
     </div>
 </div>
 
+<!-- הוספת אלמנטים של צלילים -->
+<audio id="click-sound" src="click.mp3"></audio>
+<audio id="match-sound" src="match.mp3"></audio>
+<audio id="win-sound" src="win.mp3"></audio>
+
 <script>
     const HEBREW_ALPHABET = [
         { letter: 'א', image: 'animal1.png' },
@@ -230,6 +235,13 @@
     let scores = [];
     let currentPlayerIndex = 0;
 
+    // פונקציה להשמעת צלילים
+    function playSound(soundId) {
+        const sound = document.getElementById(soundId);
+        sound.currentTime = 0; // להתחיל את הצליל מהתחלה
+        sound.play();
+    }
+
     function addPlayer() {
         const container = document.getElementById('players-container');
         const input = document.createElement('input');
@@ -247,7 +259,7 @@
             return;
         }
 
-        document.getElementById('registration-screen').style.display = 'none'; // הסרת חלון ההרשמה לאחר ההתחלה
+        document.getElementById('registration-screen').style.display = 'none';
         document.getElementById('game-container').classList.remove('hidden');
         updateScoreboard();
         updateCurrentPlayer();
@@ -312,8 +324,9 @@
         const card = cards.find(c => c.id === cardId);
 
         if (flippedCards.length < 2 && !cardElement.classList.contains('flipped')) {
+            playSound('click-sound'); // השמעת צליל בעת לחיצה על קלף
             cardElement.classList.add('flipped');
-            cardInner.innerHTML = card.content; // הצגת התוכן (אות או תמונה) ללא שינוי בגודל הקלף
+            cardInner.innerHTML = card.content;
             flippedCards.push(cardElement);
 
             if (flippedCards.length === 2) {
@@ -328,13 +341,17 @@
                         cardOne.getAttribute('data-type') !== cardTwo.getAttribute('data-type');
 
         if (isMatch) {
+            playSound('match-sound'); // השמעת צליל בעת מציאת זוג תואם
             cardOne.classList.add('matched');
             cardTwo.classList.add('matched');
             matchedPairs++;
             scores[currentPlayerIndex]++;
             updateScoreboard();
             if (matchedPairs === HEBREW_ALPHABET.length) {
-                setTimeout(() => alert(`${players[currentPlayerIndex]}, ניצחת!`), 100);
+                setTimeout(() => {
+                    playSound('win-sound'); // השמעת צליל מנצח
+                    alert(`${players[currentPlayerIndex]}, ניצחת!`);
+                }, 100);
                 return;
             }
         } else {
