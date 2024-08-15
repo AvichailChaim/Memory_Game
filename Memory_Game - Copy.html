@@ -1,0 +1,308 @@
+﻿<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק זיכרון באותיות עבריות</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('game screen.jpg');
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            direction: rtl;
+        }
+        #game-container {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 90%;
+            height: 80vh;
+        }
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            width: 100%;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+        }
+        .card {
+            width: 83px;
+            height: 83px;
+            background-image: url('2.jpg');
+            background-size: cover;
+            color: white;
+            font-size: 1.5em;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            direction: rtl;
+        }
+        .flipped {
+            background-image: none;
+            background-color: white;
+            color: black;
+            background-size: cover;
+        }
+        .matched {
+            background-color: #28a745;
+            pointer-events: none;
+        }
+        #scoreboard {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            width: 20%;
+            height: 100%;
+        }
+        #scoreboard h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        #scoreboard ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        #scoreboard li {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+        #current-player {
+            margin-top: 20px;
+            font-size: 1.5em;
+            color: blue;
+        }
+        #new-game-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #registration-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #registration-screen-inner {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            width: 50%;
+        }
+        #registration-screen h1 {
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+        #registration-screen input {
+            padding: 10px;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            width: 80%;
+        }
+        #registration-screen button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="registration-screen">
+    <div id="registration-screen-inner">
+        <h1>ברוכים הבאים למשחק זיכרון</h1>
+        <div id="players-container">
+            <input type="text" class="player-name" placeholder="הזן שם שחקן">
+        </div>
+        <button onclick="addPlayer()">הוסף שחקן</button>
+        <button onclick="startGame()">התחל משחק</button>
+    </div>
+</div>
+
+<div id="game-container" class="hidden">
+    <div id="game-board"></div>
+    <div id="scoreboard">
+        <h2>ניקוד</h2>
+        <ul id="score-list"></ul>
+        <div id="current-player"></div>
+        <button id="new-game-button" onclick="startGame()">משחק חדש</button>
+    </div>
+</div>
+
+<script>
+    const HEBREW_ALPHABET = [
+        { letter: 'א', image: 'animal1.png' },
+        { letter: 'ב', image: 'animal2.png' },
+        { letter: 'ג', image: 'animal3.png' },
+        { letter: 'ד', image: 'animal4.png' },
+        { letter: 'ה', image: 'animal5.png' },
+        { letter: 'ו', image: 'animal6.png' },
+        { letter: 'ז', image: 'animal7.png' },
+        { letter: 'ח', image: 'animal8.png' },
+        { letter: 'ט', image: 'animal9.png' },
+        { letter: 'י', image: 'animal10.png' },
+        { letter: 'כ', image: 'animal11.png' },
+        { letter: 'ל', image: 'animal12.png' },
+        { letter: 'מ', image: 'animal13.png' },
+        { letter: 'נ', image: 'animal14.png' },
+        { letter: 'ס', image: 'animal15.png' },
+        { letter: 'ע', image: 'animal16.png' },
+        { letter: 'פ', image: 'animal17.png' },
+        { letter: 'צ', image: 'animal18.png' },
+        { letter: 'ק', image: 'animal19.png' },
+        { letter: 'ר', image: 'animal20.png' },
+        { letter: 'ש', image: 'animal21.png' },
+        { letter: 'ת', image: 'animal22.png' }
+    ];
+
+    let cards = [];
+    let players = [];
+    let scores = [];
+    let currentPlayerIndex = 0;
+
+    function addPlayer() {
+        const container = document.getElementById('players-container');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'player-name';
+        input.placeholder = 'הזן שם שחקן';
+        container.appendChild(input);
+    }
+
+    function startGame() {
+        players = Array.from(document.getElementsByClassName('player-name')).map(input => input.value);
+        scores = new Array(players.length).fill(0);
+        if (players.length === 0 || players.some(name => name === '')) {
+            alert('אנא הזן שמות של כל השחקנים לפני תחילת המשחק.');
+            return;
+        }
+
+        document.getElementById('registration-screen').style.display = 'none'; // הסרת חלון ההרשמה לאחר ההתחלה
+        document.getElementById('game-container').classList.remove('hidden');
+        updateScoreboard();
+        updateCurrentPlayer();
+
+        cards = shuffleArray(HEBREW_ALPHABET.flatMap(item => [
+            { id: `${item.letter}-letter`, content: `<span style="font-size: 48px;">${item.letter}</span>`, type: 'letter' },
+            { id: `${item.letter}-image`, content: `<img src="${item.image}" alt="${item.letter}" style="width: 100%; height: 100%;">`, type: 'image' }
+        ]));
+        createBoard();
+    }
+
+    function shuffleArray(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
+
+    function createBoard() {
+        const gameBoard = document.getElementById('game-board');
+        gameBoard.innerHTML = ''; // Reset the board
+        cards.forEach(card => {
+            const cardElement = document.createElement('div');
+            cardElement.classList.add('card');
+            cardElement.setAttribute('data-id', card.id);
+            cardElement.setAttribute('data-type', card.type);
+            cardElement.innerHTML = "?"; // התחלה מוסתרת של הקלף עם האייקון
+            cardElement.addEventListener('click', flipCard);
+            gameBoard.appendChild(cardElement);
+        });
+    }
+
+    function updateScoreboard() {
+        const scoreList = document.getElementById('score-list');
+        scoreList.innerHTML = '';
+        players.forEach((player, index) => {
+            const li = document.createElement('li');
+            li.textContent = `${player}: ${scores[index]}`;
+            scoreList.appendChild(li);
+        });
+    }
+
+    function updateCurrentPlayer() {
+        const currentPlayerDisplay = document.getElementById('current-player');
+        currentPlayerDisplay.textContent = `תור השחקן: ${players[currentPlayerIndex]}`;
+    }
+
+    let flippedCards = [];
+    let matchedPairs = 0;
+
+    function flipCard() {
+        const cardElement = this;
+        const cardId = cardElement.getAttribute('data-id');
+        const card = cards.find(c => c.id === cardId);
+
+        if (flippedCards.length < 2 && !cardElement.classList.contains('flipped')) {
+            cardElement.classList.add('flipped');
+            cardElement.innerHTML = card.content; // הצגת התוכן (אות או תמונה) ללא שינוי בגודל הקלף
+            flippedCards.push(cardElement);
+
+            if (flippedCards.length === 2) {
+                setTimeout(checkForMatch, 1000);
+            }
+        }
+    }
+
+    function checkForMatch() {
+        const [cardOne, cardTwo] = flippedCards;
+        const isMatch = cardOne.getAttribute('data-id').split('-')[0] === cardTwo.getAttribute('data-id').split('-')[0] &&
+                        cardOne.getAttribute('data-type') !== cardTwo.getAttribute('data-type');
+
+        if (isMatch) {
+            cardOne.classList.add('matched');
+            cardTwo.classList.add('matched');
+            matchedPairs++;
+            scores[currentPlayerIndex]++;
+            updateScoreboard();
+            if (matchedPairs === HEBREW_ALPHABET.length) {
+                setTimeout(() => alert(`${players[currentPlayerIndex]}, ניצחת!`), 100);
+                return;
+            }
+        } else {
+            cardOne.classList.remove('flipped');
+            cardTwo.classList.remove('flipped');
+            cardOne.innerHTML = "?";
+            cardTwo.innerHTML = "?";
+        }
+
+        flippedCards = [];
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+        updateCurrentPlayer();
+    }
+</script>
+
+</body>
+</html>
